@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>海洋人格测试 | MBTI × 深海生物志</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Helvetica Neue', 'Poppins', sans-serif;
+        }
+
+        /* 全局背景 — 明亮清澈的浅海氛围 */
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #b3e5fc 0%, #81d4fa 40%, #4fc3f7 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+        }
+
+        /* 柔光水纹背景图片 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=2070&auto=format');
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+            opacity: 0.2;
+            z-index: -2;
+        }
+
+        /* 柔和光晕层 */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(255, 255, 245, 0.3), rgba(180, 230, 255, 0.2));
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 气泡动画 */
+        @keyframes bubbleGlide {
+            0% { transform: translateY(0) scale(0.6); opacity: 0.5; }
+            100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
+        }
+        .bubble {
+            position: fixed;
+            bottom: -30px;
+            background: rgba(255, 255, 245, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: bubbleGlide 14s infinite ease-in-out;
+            backdrop-filter: blur(1px);
+        }
+
+        .container {
+            max-width: 880px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 屏幕切换过渡 */
+        .screen {
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            animation: fadeScale 0.5s ease-out;
+        }
+        @keyframes fadeScale {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 卡片玻璃质感 */
+        .glass-card {
+            background: rgba(255, 250, 240, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 56px;
+            padding: 2rem 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 30, 40, 0.2);
+            border: 1px solid rgba(255, 255, 210, 0.7);
+        }
+
+        /* 首页样式 */
+        .start-screen {
+            text-align: center;
+        }
+        .hero-icon {
+            font-size: 5rem;
+            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.1));
+            margin-bottom: 0.5rem;
+        }
+        .start-title {
+            font-size: 2.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1f6392, #2c9b6e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.5px;
+        }
+        .start-sub {
+            font-size: 1.1rem;
+            color: #03506f;
+            margin-bottom: 1.8rem;
+            font-weight: 600;
+        }
+        .intro-text {
+            background: rgba(220, 245, 255, 0.7);
+            border-radius: 40px;
+            padding: 1.2rem;
+            margin: 1.8rem 0;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #015c8a;
+            border-left: 4px solid #ffaa55;
+            text-align: left;
+        }
+        .btn-primary {
+            background: linear-gradient(95deg, #ffb347, #ff8c42);
+            border: none;
+            padding: 1rem 2.2rem;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 60px;
+            color: #022b3a;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+            width: 80%;
+            max-width: 280px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            background: linear-gradient(95deg, #ffa42b, #ff7518);
+        }
+
+        /* 测试界面卡片 */
+        .quiz-card {
+            background: rgba(255, 253, 245, 0.98);
+            border-radius: 48px;
+            padding: 1.8rem 2rem 2rem;
+            box-shadow: 0 25px 40px rgba(0, 30, 40, 0.2);
+        }
+        .progress-area {
+            margin-bottom: 1.5rem;
+        }
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #0a4b6e;
+            margin-bottom: 0.5rem;
+        }
+        .progress-bar-bg {
+            background: #d4e2ec;
+            border-radius: 30px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #2c7da0, #48cae4);
+            width: 0%;
+            height: 100%;
+            border-radius: 30px;
+            transition: width 0.2s ease;
+        }
+        .question-counter {
+            font-size: 0.85rem;
+            background: #e2f0f7;
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            border-radius: 40px;
+            color: #025677;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .question-text {
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: #043b4e;
+            margin-bottom: 2rem;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .option {
+            background: #ffffffdd;
+            border-radius: 80px;
+            border: 1.5px solid #b9d9ef;
+            transition: all 0.2s;
+            cursor: pointer;
+            padding: 0.9rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            backdrop-filter: blur(2px);
+        }
+        .option:hover {
+            background: #eef9ff;
+            border-color: #2c7da0;
+            transform: scale(0.98);
+        }
+        input[type="radio"] {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid #2c7da0;
+            border-radius: 50%;
+            cursor: pointer;
+            background: white;
+            flex-shrink: 0;
+        }
+        input[type="radio"]:checked {
+            background: #2c7da0;
+            border-color: #2c7da0;
+            box-shadow: inset 0 0 0 4px white;
+        }
+        .option label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1e4a6b;
+            flex: 1;
+            cursor: pointer;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #0f5b7a;
+            border: none;
+            padding: 0.75rem 1.3rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-secondary {
+            background: #347a5d;
+        }
+        button:hover {
+            background: #0d4660;
+            transform: translateY(-2px);
+        }
+        .btn-submit {
+            background: #1f8a6b;
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+        }
+        .home-link {
+            background: #86b3c2;
+            border: none;
+            color: #022b3a;
+        }
+        .home-link:hover {
+            background: #6d9aab;
+        }
+
+        /* 结果界面卡片 */
+        .result-card {
+            background: linear-gradient(125deg, #fef9ef, #e2f0fa);
+            border-radius: 48px;
+            padding: 2rem;
+            border-left: 12px solid #ffbc6e;
+            color: #013a4b;
+        }
+        .result-badge {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-bottom: 1.2rem;
+        }
+        .mbti-type {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: #104c66;
+            display: inline-block;
+            padding: 0.2rem 1.2rem;
+            border-radius: 60px;
+            color: #f9e0a0;
+            letter-spacing: 2px;
+        }
+        .creature-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1b6b85;
+        }
+        .creature-icon {
+            font-size: 3rem;
+            filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15));
+        }
+        .deep-dive {
+            margin-top: 1.5rem;
+            background: rgba(0, 70, 90, 0.05);
+            padding: 1.2rem;
+            border-radius: 32px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .share-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+        .share-btn {
+            background: #2c7da0;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .share-btn:hover {
+            background: #1f5e7a;
+            transform: translateY(-2px);
+        }
+        .stats-link {
+            background: #4a8c6f;
+        }
+        .retake-btn {
+            background: #3b6e5e;
+            margin-top: 1.2rem;
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #0e5f7a;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-shadow: 0 1px 0 rgba(255,255,200,0.5);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 0; }
+            .glass-card { padding: 1.5rem; }
+            .question-text { font-size: 1.35rem; }
+            .start-title { font-size: 2rem; }
+            .mbti-type { font-size: 1.6rem; }
+            .creature-name { font-size: 1.5rem; }
+            .option { padding: 0.6rem 1rem; }
+            .share-buttons { flex-direction: column; align-items: stretch; }
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 首页 start screen -->
+    <div id="startScreen" class="screen start-screen glass-card">
+        <div class="hero-icon">🌊🐚</div>
+        <div class="start-title">深蓝人格测 · MBTI 海洋志</div>
+        <div class="start-sub">当性格潜入浪潮，你将化身哪一种深海生灵？</div>
+        <div class="intro-text">
+            🌟 16型人格 × 海洋图腾 · 深度灵魂映射<br>
+            海洋的广袤如同你的内心世界——章鱼的柔软直觉、座头鲸的深邃远见、海豚的热烈灵动……<br>
+            通过16道情境选择题，揭晓属于你的海洋人格原型，并获得一份详尽的「深海习性报告」。
+        </div>
+        <button id="enterQuizBtn" class="btn-primary">✨ 进入测试 ✨</button>
+    </div>
+
+    <!-- 测试界面 quiz screen -->
+    <div id="quizScreen" class="screen hidden">
+        <div class="quiz-card">
+            <div class="progress-area">
+                <div class="progress-text"><span>🧭 性格探潜进度</span><span id="answeredCount">0</span>/<span id="totalCount">16</span></div>
+                <div class="progress-bar-bg"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+            <div class="question-counter" id="qCounter">第1题</div>
+            <div class="question-text" id="questionText">加载题目中...</div>
+            <div class="options" id="optionsArea"></div>
+            <div class="nav-buttons">
+                <button id="prevBtn" class="btn-secondary">🐟 上一题</button>
+                <button id="nextBtn">🌊 下一题</button>
+                <button id="homeFromQuizBtn" class="home-link">🏠 返回首页</button>
+            </div>
+            <button id="submitBtn" class="btn-submit">✨ 完成测试 · 召唤海洋人格 ✨</button>
+        </div>
+    </div>
+
+    <!-- 结果界面 result screen (深度解析) -->
+    <div id="resultScreen" class="screen hidden">
+        <div class="result-card" id="resultDynamic">
+            <!-- 动态生成深度解析内容 -->
+        </div>
+    </div>
+    <footer>🌊 凭第一直觉选择 · 解锁你的深海灵魂图腾</footer>
+</div>
+
+<script>
+    // ========================= 题库 (16题，涵盖EI/SN/TF/JP) =========================
+    const QUESTIONS = [
+        { text: "在聚会或社交活动之后，你通常感觉：", dim: "EI", optA: "充满能量，还想继续交流", valA: "E", optB: "需要独处来恢复精力", valB: "I" },
+        { text: "比起小组讨论，你更喜欢：", dim: "EI", optA: "成为众人焦点，分享观点", valA: "E", optB: "安静倾听或一对一的深度交谈", valB: "I" },
+        { text: "结识新朋友对你来说：", dim: "EI", optA: "兴奋而自然，像鱼儿遇到新海域", valA: "E", optB: "有些消耗，更喜欢稳固的旧识", valB: "I" },
+        { text: "周末最理想的状态是：", dim: "EI", optA: "参加派对、市集或热闹活动", valA: "E", optB: "宅家看书/游戏，享受私人时间", valB: "I" },
+        { text: "你更容易被什么吸引？", dim: "SN", optA: "实际经验、具体数据和实用技巧", valA: "S", optB: "新奇的灵感、未来可能性和隐喻", valB: "N" },
+        { text: "当你学习新技能时，更偏好：", dim: "SN", optA: "按部就班的操作指南，扎实练习", valA: "S", optB: "先理解核心概念和宏观图景", valB: "N" },
+        { text: "对于“海洋”这个词，你首先想到：", dim: "SN", optA: "海浪、沙滩、具体的生物", valA: "S", optB: "神秘、潜意识、无限的传说", valB: "N" },
+        { text: "你更擅长回忆：", dim: "SN", optA: "过去经历中的细节与事实", valA: "S", optB: "过去的氛围、灵感与整体印象", valB: "N" },
+        { text: "做重要决定时，你更依赖：", dim: "TF", optA: "逻辑分析和客观原则", valA: "T", optB: "个人价值观与人情温度", valB: "F" },
+        { text: "当朋友向你倾诉烦恼，你通常：", dim: "TF", optA: "先帮他们理性分析问题根源", valA: "T", optB: "先给予情感共鸣和安慰", valB: "F" },
+        { text: "你认为公平最接近：", dim: "TF", optA: "人人遵循统一的规则", valA: "T", optB: "照顾每个人的特殊需求", valB: "F" },
+        { text: "被人称赞“有头脑”或“有爱心”，你更开心：", dim: "TF", optA: "有头脑，理性决策者", valA: "T", optB: "有爱心，温暖治愈", valB: "F" },
+        { text: "对于日程安排，你更倾向：", dim: "JP", optA: "提前计划，按部就班", valA: "J", optB: "保持灵活，随性而为", valB: "P" },
+        { text: "旅行前你会：", dim: "JP", optA: "做好详细攻略和预订", valA: "J", optB: "只定大方向，享受即兴探索", valB: "P" },
+        { text: "面对截止日期，你通常：", dim: "JP", optA: "提前规划，稳步完成", valA: "J", optB: "最后时刻灵感爆发，高效冲刺", valB: "P" },
+        { text: "你的桌面/房间风格更接近：", dim: "JP", optA: "整洁有序，每样东西有固定位置", valA: "J", optB: "创意凌乱但我知道在哪", valB: "P" }
+    ];
+    const TOTAL_QS = QUESTIONS.length;
+
+    // ========================= MBTI → 海洋生物深度映射库 =========================
+    const MBTI_OCEAN_MAP = {
+        "INFP": { creature: "章鱼", emoji: "🐙", tagline: "柔软敏感 · 诗意灵魂", desc: "章鱼拥有三个心脏与高度发达的神经系统，如INFP般情感细腻、直觉敏锐。它们善于伪装却渴望真诚，如同理想主义者在现实与梦幻间编织艺术。你在人群中安静，内心却激荡着无尽的创造力，共情力让你成为天然的治愈者。", trait: "深海诗人，随境赋形" },
+        "INFJ": { creature: "座头鲸", emoji: "🐋", tagline: "深邃先知 · 灵魂歌者", desc: "座头鲸的歌声跨越千里海域，正如INFJ的深刻洞察与远见。你是孤独而坚定的引路人，默默守护理想。如同鲸鱼跃出海面的壮美，你总能在关键时刻给出直击本质的指引。", trait: "远见者，共鸣深海" },
+        "INTJ": { creature: "大王乌贼", emoji: "🦑", tagline: "战略隐士 · 深海建筑师", desc: "大王乌贼栖于幽暗却掌控全局，INTJ拥有罕见的战略思维与宏大蓝图。你不畏孤独，专注长远目标，总在无声处构建惊世计划。神秘而强大，令人生畏却又令人着迷。", trait: "独立谋略，暗涌之主" },
+        "INTP": { creature: "水母", emoji: "🪼", tagline: "抽象哲思 · 灵动漂浮", desc: "水母优雅漂游，看似柔软却暗藏精妙构造。INTP热爱解构逻辑，探索抽象概念，好奇心驱动你游向未知海域。思维像发光触手，捕捉宇宙真理的微光。", trait: "理性幻梦，逻辑脉络" },
+        "ENFP": { creature: "海豚", emoji: "🐬", tagline: "热情火花 · 欢腾逐浪", desc: "海豚聪慧、热情、善于交际，ENFP是能量发电机，永远追逐新奇与可能性。你像浪花中的舞者，把快乐和灵感传递给每一个人，拥有无限创造天赋。", trait: "灵感之源，自由灵魂" },
+        "ENFJ": { creature: "海狮", emoji: "🦭", tagline: "鼓舞导师 · 群体光芒", desc: "海狮擅长合作并富有感染力，ENFJ是天生的教育家，用温暖与鼓励点亮他人。你在社群中如礁石上的领航员，协调和谐并激发每个人的潜能。", trait: "魅力凝聚，和谐舵手" },
+        "ENTP": { creature: "虎鲸", emoji: "🐋", tagline: "创新辩论 · 机智猎手", desc: "虎鲸高智商且策略多变，ENTP热衷思维交锋，打破常规。你是海洋中的发明家，总能找到意想不到的解决方案，享受智性挑战。", trait: "破局者，锐意革新" },
+        "ENTJ": { creature: "鲨鱼", emoji: "🦈", tagline: "锋芒领袖 · 深蓝统帅", desc: "鲨鱼果断迅猛，天生统帅。ENTJ执行力惊人，目标感极强，带领团队突破重围。你如同深海中的掠食者，用理性与远见开疆拓土。", trait: "铁腕决策，征服浪潮" },
+        "ISFP": { creature: "海星", emoji: "⭐", tagline: "静谧艺术家 · 星芒治愈", desc: "海星安静而色彩斑斓，再生力极强。ISFP沉浸于艺术与自然，用善意和美感疗愈世界。你低调却独特，在不经意间绽放光芒。", trait: "温柔美学，自愈新生" },
+        "ISFJ": { creature: "海马", emoji: "🐚", tagline: "守护者 · 温润忠诚", desc: "海马细腻耐心，是家庭的守护者。ISFJ默默付出，用行动关怀他人，如同暗礁中的温暖灯塔，守护每一份珍贵回忆。", trait: "忠诚守护，涓涓温情" },
+        "ISTJ": { creature: "海龟", emoji: "🐢", tagline: "稳重恪守 · 远古航者", desc: "海龟遵循古老路线，可靠务实。ISTJ严谨负责，秩序感与坚持让你成为团队基石。如龟甲般坚韧，承载责任穿越时间。", trait: "正直守信，磐石之基" },
+        "ISTP": { creature: "电鳐", emoji: "⚡", tagline: "冷静匠人 · 精准一击", desc: "电鳐独来独往，擅长瞬间爆发。ISTP是现实问题解决者，冷静理性，危机时刻展露非凡技能。像深海中的电子脉冲，精准而致命。", trait: "机能大师，静默锐刃" },
+        "ESTP": { creature: "旗鱼", emoji: "🐟", tagline: "冒险行动派 · 逐浪猎手", desc: "旗鱼速度冠绝海洋，热爱挑战。ESTP务实灵活，享受刺激，是即兴反应的王者。在变化中如鱼得水，永远冲向浪潮之巅。", trait: "敏捷实干，活在当下" },
+        "ESTJ": { creature: "海象", emoji: "🦭", tagline: "秩序管理者 · 领地卫士", desc: "海象群体严明，责任感强。ESTJ高效务实，擅长监督与执行，如族长般维护规则，确保集体高效运转。", trait: "铁律掌舵，务实领袖" },
+        "ESFJ": { creature: "小丑鱼", emoji: "🐠", tagline: "热心伙伴 · 共生纽带", desc: "小丑鱼乐于合作，构建亲密社群。ESFJ热情周到，擅长照顾他人，是群体中的粘合剂，让周围充满归属感。", trait: "温暖连接，互助之辉" },
+        "ESFP": { creature: "海蛞蝓", emoji: "🐌", tagline: "缤纷表演家 · 流光溢彩", desc: "海蛞蝓色彩绚烂，享受当下欢愉。ESFP活力四射，热爱聚光灯，为世界带来欢笑与生机。如珊瑚礁中的宝石，让人移不开眼。", trait: "即兴明星，快乐浪花" }
+    };
+    // 确保所有类型都有映射
+    const allTypes = ["INFP","INFJ","INTJ","INTP","ENFP","ENFJ","ENTP","ENTJ","ISFP","ISFJ","ISTJ","ISTP","ESTP","ESTJ","ESFJ","ESFP"];
+    allTypes.forEach(t => { if(!MBTI_OCEAN_MAP[t]) MBTI_OCEAN_MAP[t] = { creature: "珍珠鱼", emoji: "🐟", tagline: "神秘深海魂", desc: "你的特质如同深海未被完全发现的瑰宝，独特而迷人，充满无限可能。", trait: "未知奇境" }; });
+
+    // ========================= 全局状态 =========================
+    let userSelections = new Array(TOTAL_QS).fill(null);
+    let currentIndex = 0;
+
+    // DOM 元素
+    const startScreen = document.getElementById('startScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const resultDynamic = document.getElementById('resultDynamic');
+    const enterBtn = document.getElementById('enterQuizBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const homeFromQuiz = document.getElementById('homeFromQuizBtn');
+    const qTextEl = document.getElementById('questionText');
+    const optionsArea = document.getElementById('optionsArea');
+    const qCounterSpan = document.getElementById('qCounter');
+    const answeredCountSpan = document.getElementById('answeredCount');
+    const progressFill = document.getElementById('progressFill');
+    const totalCountSpan = document.getElementById('totalCount');
+    totalCountSpan.innerText = TOTAL_QS;
+
+    // 辅助: 更新进度条
+    function updateProgress() {
+        const answered = userSelections.filter(v => v !== null).length;
+        answeredCountSpan.innerText = answered;
+        const percent = (answered / TOTAL_QS) * 100;
+        progressFill.style.width = `${percent}%`;
+    }
+
+    // 重置所有测试数据
+    function resetTestData() {
+        userSelections = new Array(TOTAL_QS).fill(null);
+        currentIndex = 0;
+        updateProgress();
+        if (quizScreen && !quizScreen.classList.contains('hidden')) {
+            renderCurrentQuestion();
+        }
+    }
+
+    // 渲染当前题目 + 整行点击选中
+    function renderCurrentQuestion() {
+        const q = QUESTIONS[currentIndex];
+        if (!q) return;
+        qTextEl.innerText = q.text;
+        qCounterSpan.innerText = `第${currentIndex+1}题 / ${TOTAL_QS}`;
+        const selectedVal = userSelections[currentIndex];
+        optionsArea.innerHTML = `
+            <div class="option" data-val="${q.valA}">
+                <input type="radio" name="mbtiOption" id="optA_${currentIndex}" value="${q.valA}" ${selectedVal === q.valA ? 'checked' : ''}>
+                <label for="optA_${currentIndex}">${q.optA}</label>
+            </div>
+            <div class="option" data-val="${q.valB}">
+                <input type="radio" name="mbtiOption" id="optB_${currentIndex}" value="${q.valB}" ${selectedVal === q.valB ? 'checked' : ''}>
+                <label for="optB_${currentIndex}">${q.optB}</label>
+            </div>
+        `;
+        
+        const optionDivs = document.querySelectorAll('.option');
+        optionDivs.forEach(div => {
+            const radio = div.querySelector('input[type="radio"]');
+            if (radio) {
+                div.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') {
+                        radio.checked = true;
+                        const changeEvent = new Event('change', { bubbles: true });
+                        radio.dispatchEvent(changeEvent);
+                    }
+                });
+                radio.addEventListener('change', (e) => {
+                    const selectedValue = e.target.value;
+                    userSelections[currentIndex] = selectedValue;
+                    updateProgress();
+                });
+            }
+        });
+    }
+
+    function goPrev() { if(currentIndex > 0) { currentIndex--; renderCurrentQuestion(); } }
+    function goNext() { if(currentIndex < TOTAL_QS - 1) { currentIndex++; renderCurrentQuestion(); } else { if(!allQuestionsAnswered()) alert("🌊 尚有未探索的深域，请完成所有题目～"); else alert("🎉 所有题目已完成！点击「完成测试」查看海洋人格深度报告。"); } }
+    function allQuestionsAnswered() { return userSelections.every(v => v !== null); }
+
+    // 计算MBTI类型
+    function computeMBTI() {
+        let score = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+        for(let i=0; i<TOTAL_QS; i++) {
+            const choice = userSelections[i];
+            if(choice && score.hasOwnProperty(choice)) score[choice] += 1;
+        }
+        const ei = score.E >= score.I ? 'E' : 'I';
+        const sn = score.S >= score.N ? 'S' : 'N';
+        const tf = score.T >= score.F ? 'T' : 'F';
+        const jp = score.J >= score.P ? 'J' : 'P';
+        return `${ei}${sn}${tf}${jp}`;
+    }
+
+    // 生成分享文本
+    function getShareText(mbtiType, oceanData) {
+        return `🐙 我的海洋人格测试结果：${mbtiType} — ${oceanData.creature}人格 ${oceanData.emoji}\n${oceanData.tagline}\n${oceanData.desc.substring(0, 100)}...\n🌊 快来测测你的深海原型：${window.location.href}`;
+    }
+
+    // 显示结果界面（深度解析）+ 分享按钮 + 统计链接
+    function showResultScreen(mbtiType) {
+        const ocean = MBTI_OCEAN_MAP[mbtiType] || MBTI_OCEAN_MAP["INFP"];
+        const { creature, emoji, tagline, desc, trait } = ocean;
+        // 构建邮件分享链接
+        const subject = encodeURIComponent(`我的海洋人格测试结果：${mbtiType} — ${creature}人格`);
+        const body = encodeURIComponent(getShareText(mbtiType, ocean));
+        const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+        
+        // Google Forms 问卷占位链接（请替换成你自己的表单链接）
+        // 用户可在此链接中设置一个下拉题 “你的MBTI类型”，选项为16种类型。
+        const GOOGLE_FORM_URL = "https://forms.gle/your-form-id";  // 请替换为真实的Google Forms链接
+        
+        resultDynamic.innerHTML = `
+            <div class="result-badge">
+                <span class="mbti-type">${mbtiType}</span>
+                <span class="creature-icon">${emoji}</span>
+                <span class="creature-name">${creature} 人格</span>
+            </div>
+            <div style="font-size:1.5rem; font-weight:700; color:#145c74;">✨ ${tagline}</div>
+            <div class="deep-dive">
+                <strong>🐋 深度解析 · 海洋习性报告</strong><br><br>
+                ${desc}<br><br>
+                🌟 灵魂特质：${trait || ocean.tagline}<br>
+                🌊 你在深海的角色：像${creature}一样，你以独特的节奏游弋于生命洋流，${mbtiType}的天赋让你在属于你的海域闪闪发光。
+            </div>
+            <div class="share-buttons">
+                <a href="${mailtoLink}" class="share-btn" target="_blank">📧 邮件分享结果</a>
+                <a href="${GOOGLE_FORM_URL}" class="share-btn stats-link" target="_blank" rel="noopener noreferrer">📊 参与人格统计</a>
+            </div>
+            <button id="retakeFromResult" class="retake-btn">🐚 重新测试 · 潜入另一片海域</button>
+            <p style="font-size:0.7rem; margin-top:1rem; text-align:center; color:#2c6b4e;">✨ 点击「参与人格统计」可自愿提交你的MBTI类型，一起探索海洋人格分布图 ✨</p>
+        `;
+        // 绑定重新测试按钮
+        const retakeBtn = document.getElementById('retakeFromResult');
+        if(retakeBtn) retakeBtn.addEventListener('click', () => {
+            resetTestData();
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            renderCurrentQuestion();
+            updateProgress();
+        });
+        startScreen.classList.add('hidden');
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+    }
+
+    // 提交逻辑
+    function onSubmit() {
+        if(!allQuestionsAnswered()) {
+            alert("🐡 还有些深海谜题未解！请完成全部16道题再召唤海洋人格～");
+            const firstEmpty = userSelections.findIndex(v => v === null);
+            if(firstEmpty !== -1) {
+                currentIndex = firstEmpty;
+                renderCurrentQuestion();
+            }
+            return;
+        }
+        const mbtiResult = computeMBTI();
+        showResultScreen(mbtiResult);
+    }
+
+    // 首页进入测试
+    function enterQuiz() {
+        resetTestData();          
+        currentIndex = 0;
+        startScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        renderCurrentQuestion();
+        updateProgress();
+    }
+
+    function backToHome() {
+        resetTestData();
+        startScreen.classList.remove('hidden');
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+    }
+
+    // 绑定事件
+    enterBtn.addEventListener('click', enterQuiz);
+    prevBtn.addEventListener('click', goPrev);
+    nextBtn.addEventListener('click', goNext);
+    submitBtn.addEventListener('click', onSubmit);
+    homeFromQuiz.addEventListener('click', backToHome);
+
+    // 初始化显示首页
+    quizScreen.classList.add('hidden');
+    resultScreen.classList.add('hidden');
+    startScreen.classList.remove('hidden');
+
+    // 动态气泡装饰
+    function createBubble() {
+        const bubble = document.createElement('div');
+        bubble.classList.add('bubble');
+        const size = Math.random() * 45 + 12;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * 100}%`;
+        bubble.style.animationDuration = `${Math.random() * 10 + 7}s`;
+        bubble.style.animationDelay = `${Math.random() * 6}s`;
+        bubble.style.opacity = Math.random() * 0.4 + 0.2;
+        document.body.appendChild(bubble);
+        setTimeout(() => bubble.remove(), 15000);
+    }
+    setInterval(createBubble, 2000);
+</script>
+</body>
+</html>
